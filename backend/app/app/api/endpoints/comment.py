@@ -18,7 +18,7 @@ async def addComment(
 ):
     if not post_crud.getPostById(db = db, post_id = post_id, status_code = 1):
             raise HTTPException(404, "Post not found")
-    comment = comment_crud.addComment(post_id = post_id, text = text, user_id = user.id, db = db)
+    comment_crud.addComment(post_id = post_id, text = text, user_id = user.id, db = db)
     return {"detail": "Comment added"}
 
 

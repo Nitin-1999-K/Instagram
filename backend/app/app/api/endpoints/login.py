@@ -1,13 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException, Form
 from sqlalchemy.orm import Session
 from api.deps import get_db
-from crud import login_crud, user_crud, otp_crud
+from crud import login_crud, user_crud
 from core import security
 from api import deps
 import utils
 from fastapi.security import OAuth2PasswordRequestForm
 from models import User as UserModel 
-from schemas import UserCreate, UserResetPassword as UserRP, TokenResponse, SignUpResponse
+from schemas import UserCreate, UserResetPassword as UserRP, SignUpResponse
 
 router = APIRouter()
 
@@ -72,8 +72,9 @@ def verifyOtp(otp: int, db: Session = Depends(deps.get_db), user: UserModel = De
         raise HTTPException(404, "Account not found")
     if utils.verifySignUpOtp(user.otp_key, otp):
         user = login_crud.activateAccount(db, user)
-    return user
-
+        {"detail": "Account activated"}
+    {"detail": "OTP not validated"}
+    
 
 @router.post("/resend-otp", description = "To resend the otp") # status will be in Pending
 def resendOtp(db: Session = Depends(deps.get_db), user: UserModel = Depends(deps.get_current_user)) -> int:

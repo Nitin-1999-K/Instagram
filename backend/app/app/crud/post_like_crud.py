@@ -3,8 +3,8 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 
 
-# def getLike(db, post_id, user_id):
-#     return db.query(PostLike).filter(PostLike.post_id == post_id, PostLike.user_id == user_id).first()
+def getLike(db, post_id, user_id):
+    return db.query(PostLike).filter(PostLike.post_id == post_id, PostLike.user_id == user_id).first()
     
 
 def likePost(db: Session, post_id: int, user_id: int):
@@ -12,8 +12,6 @@ def likePost(db: Session, post_id: int, user_id: int):
         like = PostLike(post_id = post_id, user_id = user_id)
         db.add(like)
         db.commit()
-        db.refresh(like)
-        return like
     except IntegrityError:
         pass
 

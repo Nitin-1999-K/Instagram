@@ -21,10 +21,9 @@ def likePost(
     post = post_crud.getPostById(db = db, post_id = post_id, status_code=1)
     if not post:
         raise HTTPException(404, "Post not found")
-    like = post_like_crud.likePost(db, user_id = user.id, post_id = post_id)
-    if not like:
-        if post_like_crud.getLike(db = db, post_id = post_id, user_id = user.id):
+    if post_like_crud.getLike(db = db, post_id = post_id, user_id = user.id):
             raise HTTPException(409, "Already liked this post")
+    post_like_crud.likePost(db, user_id = user.id, post_id = post_id)
     return {"detail": "Like added"}
 
 

@@ -17,7 +17,7 @@ def createChat(
 ):
     if not user:
         raise HTTPException(404, "User not found")
-    # receiver = if not receiver raise 
+    chat_crud.sendMessage(db = db, sender_id = user.id, receiver_id = receiver_id, message = message)
     return {"detail": "Chat created"}
 
 
@@ -34,7 +34,7 @@ def readChat(
 @router.get("/", description = "To see all the chat the user has made with everyone")
 def readChats(
     user: UserModel = Depends(deps.get_current_active_user),
-    db: Session = Depends(deps.get_db)) -> list[ChatResponse] | None:
+    db: Session = Depends(deps.get_db)) -> list[ChatResponse]:
     if not user:
         raise HTTPException(status_code=401, detail = "Request needs user to be authenticated")
     return chat_crud.readChats(db = db, person_id = user.id)
@@ -53,7 +53,7 @@ def updateMessage(
         raise HTTPException(status_code=404, detail = "Message not found")
     if not chat.sender_id == user.id:
         raise HTTPException(status_code=401, detail="Can't update other's messages")
-    chat = chat_crud.updateMessage(db = db, message = message, chat = chat)
+    chat_crud.updateMessage(db = db, message = message, chat = chat)
     return {"detail": "Chat updated"}
 
 
@@ -69,5 +69,5 @@ def deleteMessage(
         raise HTTPException(status_code=404, detail = "Message not found")
     if not chat.sender_id == user.id:
         raise HTTPException(status_code=401, detail="Can't delete other's messages")
-    chat = chat_crud.deleteMessage(db = db, chat = chat)
+    chat_crud.deleteMessage(db = db, chat = chat)
     return {"detail": "Chat deleted"}

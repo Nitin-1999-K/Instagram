@@ -7,8 +7,6 @@ def sendMessage(db: Session, sender_id: int, receiver_id: int, message: str):
     chat = ChatModel(sender_id = sender_id, receiver_id = receiver_id, message = message)
     db.add(chat)
     db.commit()
-    db.refresh(chat)
-    return chat
 
 
 def readChat(db: Session, person_id : int, friend_id: int):
@@ -41,15 +39,8 @@ def getChatById(db: Session, chat_id: int):
 def updateMessage(db: Session, chat: ChatModel, message: str):
     chat.message = message
     db.commit()
-    db.refresh(chat)
-    return chat
     
 
 def deleteMessage(db: Session, chat: ChatModel):
     chat.status_code = -1
     db.commit()
-    db.refresh(chat)
-    return chat
-
-# Delete one chat
-# Deletee all chat

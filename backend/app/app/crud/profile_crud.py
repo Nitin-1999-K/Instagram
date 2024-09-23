@@ -43,5 +43,3 @@ def updateProfile(db: Session, db_profile: ProfileModel, profile: ProfileRequest
     db_profile.profile_pic_directory = settings.profile_pic_dir.replace("\\", "/") + f"/{str(db_profile.id)}"
     db_profile.profile_pic_datetime = datetime.utcnow()
     db.commit()
-    db.refresh(db_profile)
-    return db_profile

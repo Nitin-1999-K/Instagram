@@ -29,8 +29,6 @@ def activateAccount(db, user):
     user.status_code = 1
     profile_crud.createProfile(db = db, user_id = user.id)
     db.commit()
-    db.refresh(user)
-    return user
 
 
 def generateOtp(db: Session, otp_key: str, user_id: int, otp_type: str):

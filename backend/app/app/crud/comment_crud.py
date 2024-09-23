@@ -14,7 +14,6 @@ def addComment(
         comment = CommentModel(user_id = user_id, text = text, post_id = post_id)
         db.add(comment)
         db.commit()
-        return comment
     except IntegrityError:
         db.rollback()
         pass

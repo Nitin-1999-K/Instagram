@@ -21,7 +21,6 @@ def getUser(db: Session,
     return user
 
 
-
 def createUser(db: Session, user: UserCreate):
     hashed_password = security.hash_password(user.password)
     try:
@@ -35,20 +34,26 @@ def createUser(db: Session, user: UserCreate):
         db.rollback()
 
 
-def updateUser(db: Session, user_id: int, user: UserUpdate):
-    db_user = db.query(UserModel).filter(UserModel.id == user_id).first()
-    if db_user == None:
-        return None
+def getUsers(db: Session,
+             username: str | None = None, 
+             email: str | None = None, 
+             mobile_number: str | None = None):
+
+    user = db.query(UserModel).filter(
+        or_(UserModel.username == username, UserModel.email == email, UserModel.mobile_number == mobile_number)).all()
+    return user
+
+
+def updateUser(user_update: UserUpdate, db: Session, user: UserModel):
     try:
-        for key, value in user.model_dump(exclude_unset=True).items():
-            setattr(db_user, key, value)
+        for key, value in user_update.model_dump(exclude_unset=True).items():
+            setattr(user, key, value)
         if user.password:
-            db_user.hashed_password = security.hash_password(user.password)
+            user.hashed_password = security.hash_password(user.password)
         db.commit()
-        db.refresh(db_user)
-    except IntegrityError:
-        return None
-    return db_user
+        db.refresh(user)
+    except:
+        pass
 
 
 def deleteUser(db: Session, user: UserModel):

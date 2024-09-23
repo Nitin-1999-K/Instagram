@@ -18,11 +18,25 @@ async def updateUser(
 ):
     if not user:
         raise HTTPException(status_code=401, detail="Request needs user to be authorized")
-    
-    updated_user = user_crud.updateUser(db, user.id, user_update)
-    if not updated_user:
-        raise HTTPException(409, "Credentials already exist")
-    return {"detail": "user updated"}
+
+    update_credentials = {"Username": user_update.username, 
+                          "E-mail": user_update.email, 
+                          "Mobile Number": user_update.mobile_number}
+
+    db_users = user_crud.getUsers(db, user.username, user.email, user.mobile_number)
+    if db_users:
+        for db_user in db_users:
+            if db_user != user:
+                db_credentials = {"Username": db_user.username, 
+                                "E-mail": db_user.email, 
+                                "Mobile Number": db_user.mobile_number}
+                
+                for credential in update_credentials:
+                    if db_credentials[credential] and db_credentials[credential] == update_credentials[credential]:
+                        raise HTTPException(status_code = 409,
+                                            detail = f"{credential}: {db_credentials[credential]} already exists")
+    user_crud.updateUser(db = db, user = user, user_update = user_update)
+    return {"detail": "User updated"}
 
 
 @router.delete("/", description = "To delete the user account")
