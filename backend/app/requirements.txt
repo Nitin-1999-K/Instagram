@@ -1,0 +1,11 @@
+alembic
+bcrypt
+cryptography
+fastapi[standard]
+jose
+pyjwt
+sqlmodel
+passlib
+pydantic_settings
+pymysql
+pytz
