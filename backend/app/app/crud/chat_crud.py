@@ -21,15 +21,14 @@ def readChat(db: Session, person_id : int, friend_id: int):
 
 def readChats(db: Session, person_id: int):
 
-    friend_id = case((ChatModel.sender_id == person_id, ChatModel.receiver_id), (ChatModel.receiver_id == person_id, ChatModel.receiver_id))
+    friend_id = case((ChatModel.sender_id == person_id, ChatModel.receiver_id), (ChatModel.receiver_id == person_id, ChatModel.sender_id))
 
-    subquery = db.query(case((ChatModel.sender_id == person_id, ChatModel.receiver_id), (ChatModel.receiver_id == person_id, ChatModel.receiver_id)).label("friend_id"), 
-    func.max(ChatModel.created_datetime).label('latest_chat_datetime'))\
+    subquery = db.query(friend_id.label("friend_id"), 
+    func.max(ChatModel.id).label('latest_chat_id'))\
     .filter(or_(ChatModel.sender_id == person_id, ChatModel.receiver_id == person_id), ChatModel.status_code == 1)\
     .group_by(friend_id).subquery()
 
-    chats = db.query(ChatModel).join(subquery, (friend_id == subquery.c.friend_id) & 
-    (ChatModel.created_datetime == subquery.c.latest_chat_datetime)).all()
+    chats = db.query(ChatModel).join(subquery, ChatModel.id == subquery.c.latest_chat_id).all()
 
     return chats
 

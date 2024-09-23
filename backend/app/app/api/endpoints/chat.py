@@ -34,7 +34,7 @@ def readChat(
 @router.get("/", description = "To see all the chat the user has made with everyone")
 def readChats(
     user: UserModel = Depends(deps.get_current_active_user),
-    db: Session = Depends(deps.get_db)) -> list[ChatResponse]:
+    db: Session = Depends(deps.get_db)) -> list[ChatResponse] | None:
     if not user:
         raise HTTPException(status_code=401, detail = "Request needs user to be authenticated")
     return chat_crud.readChats(db = db, person_id = user.id)
