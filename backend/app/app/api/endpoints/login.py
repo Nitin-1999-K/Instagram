@@ -12,12 +12,15 @@ from schemas import UserCreate, UserResetPassword as UserRP, TokenResponse, Sign
 router = APIRouter()
 
 
-@router.post("/token")
+@router.post("/token", description = "To log-in")
 def createAccessToken(db: Session = Depends(deps.get_db), user: OAuth2PasswordRequestForm = Depends()):
 
     db_user = user_crud.getUser(db, user.username)
 
     if not db_user:
+        raise HTTPException(status_code=404, detail = "User not found")
+    
+    if db_user.status_code == -1:
         raise HTTPException(status_code=404, detail = "User not found")
     
     if not security.authenticate(user.password, db_user.hashed_password):
@@ -27,7 +30,7 @@ def createAccessToken(db: Session = Depends(deps.get_db), user: OAuth2PasswordRe
     return {"access_token": token,"token_type": "bearer"}
 
 
-@router.post("/signup")
+@router.post("/signup", description = "To sign-up for the first time")
 async def createUser(db: Session = Depends(deps.get_db), user: UserCreate = Depends(UserCreate.init)) -> SignUpResponse:
 
     if not user.email and not user.mobile_number:
@@ -59,7 +62,7 @@ async def createUser(db: Session = Depends(deps.get_db), user: UserCreate = Depe
     return {"access_token": token, "token_type": "bearer", "otp": otp}
 
 
-@router.post("/verify-otp")
+@router.post("/verify-otp", description = "To verify otp send via mail after sign-up")
 def verifyOtp(otp: int, db: Session = Depends(deps.get_db), user: UserModel = Depends(deps.get_current_user)): 
     if not user:
         raise HTTPException(status_code=401, detail = "Unauthorized user")
@@ -72,8 +75,8 @@ def verifyOtp(otp: int, db: Session = Depends(deps.get_db), user: UserModel = De
     return user
 
 
-@router.post("/resend-otp") # status will be in Pending
-def resendOtp(db: Session = Depends(deps.get_db), user: UserModel = Depends(deps.get_current_user)):
+@router.post("/resend-otp", description = "To resend the otp") # status will be in Pending
+def resendOtp(db: Session = Depends(deps.get_db), user: UserModel = Depends(deps.get_current_user)) -> int:
     if not user:
         raise HTTPException(401, "Request needs user to be authorized")
     if user.status_code == 1:
@@ -85,7 +88,7 @@ def resendOtp(db: Session = Depends(deps.get_db), user: UserModel = Depends(deps
 # The otp depends upon randomly generated salt key for two-step verification
 
 
-@router.post("/forgot-password") # User needs to be active
+@router.post("/forgot-password", description = "To receive the link to reset the password") # User needs to be active
 def forgotPassword(db: Session = Depends(deps.get_db), user: UserRP = Depends(UserRP.init)):
     if not user.username and not user.email and not user.mobile_number:
         raise HTTPException(status_code=400, detail="Either username or email or mobile number is mandatory")
@@ -96,7 +99,7 @@ def forgotPassword(db: Session = Depends(deps.get_db), user: UserRP = Depends(Us
     return utils.fakeSendEmail(token, db_user.email, db_user.mobile_number)
 
 
-@router.post("/reset-password")
+@router.post("/reset-password", description = "The actual link to reset the password")
 def resetPassword(token: str, db: Session = Depends(deps.get_db), password: str = Form()):
     user = login_crud.passwordResetUser(db, token)
     if not user:

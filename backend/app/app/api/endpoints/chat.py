@@ -8,7 +8,7 @@ from schemas import ChatResponse
 
 router = APIRouter(prefix="/chats")
 
-@router.post("/")
+@router.post("/", description = "To send chat message")
 def createChat(
     receiver_id: int,
     message: str = Body(),
@@ -18,10 +18,10 @@ def createChat(
     if not user:
         raise HTTPException(404, "User not found")
     # receiver = if not receiver raise 
-    return chat_crud.sendMessage(db = db, sender_id = user.id, receiver_id = receiver_id, message = message)
+    return {"detail": "Chat created"}
 
 
-@router.get("/{friend_id}")
+@router.get("/{friend_id}", description = "To view chat with a particular friend")
 def readChat(
     friend_id: int,
     user: UserModel = Depends(deps.get_current_active_user),
@@ -31,7 +31,7 @@ def readChat(
     return chat_crud.readChat(db = db, person_id=user.id, friend_id= friend_id)
 
 
-@router.get("/")
+@router.get("/", description = "To see all the chat the user has made with everyone")
 def readChats(
     user: UserModel = Depends(deps.get_current_active_user),
     db: Session = Depends(deps.get_db)) -> list[ChatResponse]:
@@ -40,7 +40,7 @@ def readChats(
     return chat_crud.readChats(db = db, person_id = user.id)
 
 
-@router.patch("/{chat_id}")
+@router.patch("/{chat_id}", description = "To update a particular chat message")
 def updateMessage(
     chat_id: int,
     message: str = Body(),
@@ -54,10 +54,10 @@ def updateMessage(
     if not chat.sender_id == user.id:
         raise HTTPException(status_code=401, detail="Can't update other's messages")
     chat = chat_crud.updateMessage(db = db, message = message, chat = chat)
-    return chat
+    return {"detail": "Chat updated"}
 
 
-@router.delete("/{chat_id}")
+@router.delete("/{chat_id}",  description = "To delete a particular chat message")
 def deleteMessage(
     chat_id: int,
     user: UserModel = Depends(deps.get_current_active_user),
@@ -70,4 +70,4 @@ def deleteMessage(
     if not chat.sender_id == user.id:
         raise HTTPException(status_code=401, detail="Can't delete other's messages")
     chat = chat_crud.deleteMessage(db = db, chat = chat)
-    return chat
+    return {"detail": "Chat deleted"}

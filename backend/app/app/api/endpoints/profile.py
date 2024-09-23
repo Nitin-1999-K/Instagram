@@ -11,7 +11,7 @@ from schemas import ProfileResponse
 router = APIRouter(prefix = "/profile")
 
 
-@router.get("/")
+@router.get("/", description = "To view a profile")
 def readProfile(profile_id: int, db: Session = Depends(get_db), user: UserModel = Depends(deps.get_current_active_user)) -> ProfileResponse:
     profile = profile_crud.readProfile(db = db, profile_id = profile_id, user_id = user.id)
     if not profile:
@@ -19,7 +19,7 @@ def readProfile(profile_id: int, db: Session = Depends(get_db), user: UserModel 
     return profile
 
 
-@router.patch("/{profile_id}")
+@router.patch("/{profile_id}", description = "To update the profile of the current user")
 def updateProfile(profile_picture: UploadFile, 
                   profile: ProfileRequest = Depends(ProfileRequest.init),
                   db: Session = Depends(get_db),
@@ -31,6 +31,6 @@ def updateProfile(profile_picture: UploadFile,
         raise HTTPException(404, "Profile not found")
     if db_profile.user_id != user.id:
         raise HTTPException(401, "Can't alter other's profiles")
-    return profile_crud.updateProfile(db = db, db_profile = db_profile, profile = profile, profile_picture = profile_picture)
-
+    profile_crud.updateProfile(db = db, db_profile = db_profile, profile = profile, profile_picture = profile_picture)
+    return {"detail": "Profile updated"}
 

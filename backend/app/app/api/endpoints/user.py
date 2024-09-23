@@ -10,7 +10,7 @@ from models import User as UserModel
 router = APIRouter(prefix = "/users")
 
 
-@router.patch("/")
+@router.patch("/", description = "To update the credentials of the current user")
 async def updateUser(
     user_update: UserUpdate,
     db: Session = Depends(deps.get_db),
@@ -25,7 +25,7 @@ async def updateUser(
     return {"detail": "user updated"}
 
 
-@router.delete("/")
+@router.delete("/", description = "To delete the user account")
 async def deleteUser(
     db: Session = Depends(deps.get_db),
     user: UserModel = Depends(deps.get_current_user)

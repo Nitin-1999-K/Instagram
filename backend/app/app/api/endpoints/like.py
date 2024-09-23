@@ -10,7 +10,7 @@ from schemas import LikeResponse
 router = APIRouter(prefix = "/likes")
 
 
-@router.post("/{post_id}")
+@router.post("/{post_id}", description = "To like a particular post")
 def likePost(
     post_id: int,
     user: UserModel = Depends(deps.get_current_active_user),
@@ -25,10 +25,10 @@ def likePost(
     if not like:
         if post_like_crud.getLike(db = db, post_id = post_id, user_id = user.id):
             raise HTTPException(409, "Already liked this post")
-    return like
+    return {"detail": "Like added"}
 
 
-@router.get("/user")
+@router.get("/user", description = "To view all the posts liked by the user")
 def readLikesByUserID(
     user: UserModel = Depends(deps.get_current_active_user),
     db: Session = Depends(deps.get_db)
@@ -39,7 +39,7 @@ def readLikesByUserID(
     return likes
 
 
-@router.get("/")
+@router.get("/", description = "To view all the users who liked a particular post")
 def readLikesByPostID(
     post_id: int,
     db: Session = Depends(deps.get_db)
@@ -48,7 +48,7 @@ def readLikesByPostID(
     return likes
 
 
-@router.delete("/{like_id}")
+@router.delete("/{like_id}", description = "To unlike a particular post")
 def unlikePost(
     like_id: int,
     user: UserModel = Depends(deps.get_current_active_user),
@@ -62,3 +62,4 @@ def unlikePost(
     if post_like.user_id != user.id:
         raise HTTPException(401, "Cannot remove other's post like")
     post_like_crud.unlikePost(db = db, post_like = post_like)
+    return {"detail": "Post unliked"}

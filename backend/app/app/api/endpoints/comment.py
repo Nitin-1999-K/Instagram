@@ -9,7 +9,7 @@ from schemas import CommentResponse
 router = APIRouter(prefix = "/comments")
 
 
-@router.post("/", status_code=201)
+@router.post("/", status_code=201, description = "To comment on a particular post")
 async def addComment(
     post_id: int,
     text: str = Form(),
@@ -19,10 +19,10 @@ async def addComment(
     if not post_crud.getPostById(db = db, post_id = post_id, status_code = 1):
             raise HTTPException(404, "Post not found")
     comment = comment_crud.addComment(post_id = post_id, text = text, user_id = user.id, db = db)
-    return "Comment Added"
+    return {"detail": "Comment added"}
 
 
-@router.get("/")
+@router.get("/", description = "To view all the comments under a particular post")
 def getCommentsByPostId(
     post_id: int,
     db: Session = Depends(deps.get_db)
@@ -36,7 +36,7 @@ def getCommentsByPostId(
     return comments
 
 
-@router.patch("/{comment_id}", status_code=204)
+@router.patch("/{comment_id}", status_code=204, description = "To update a particular comment")
 def updateComment(
     comment_id: int,
     text: str,
@@ -50,9 +50,10 @@ def updateComment(
         raise HTTPException(401, "Can't modify other's comment")
 
     comment_crud.updateComment(db, comment, text)
-   
+    return {"detail": "Comment added"}
 
-@router.delete("/{comment_id}")
+
+@router.delete("/{comment_id}", description = "To delete a particular comment")
 def deleteComment(
     comment_id: int,
     db: Session = Depends(deps.get_db),
